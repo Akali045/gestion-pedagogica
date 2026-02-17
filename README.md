@@ -15,7 +15,7 @@ Sistema web para docentes de educación secundaria en México que permite gestio
 
 ## 🚀 Cómo usar
 
-1. Visita: [https://TU-USUARIO.github.io/gestion-pedagogica/](https://TU-USUARIO.github.io/gestion-pedagogica/)
+1. Visita: [https://TU-USUARIO.github.io/gestion-pedagogica/](https://akali045.github.io/gestion-pedagogica/)
 2. Establece una contraseña en tu primera visita
 3. ¡Comienza a gestionar tus grupos!
 
