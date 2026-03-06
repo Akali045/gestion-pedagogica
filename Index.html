@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Pedagógica</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modules.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Sistema de Gestión Pedagógica</h1>
+                <p>Administra tus grupos y alumnos de manera eficiente</p>
+            </div>
+
+            <div id="loginError" class="error-message" style="display: none;"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="passwordInput">Contraseña</label>
+                    <input type="password" id="passwordInput" placeholder="Ingresa tu contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Ingresar</button>
+            </form>
+
+            <div style="margin-top: 1rem;">
+                <p style="text-align: center; color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 1rem;">
+                    ¿Primera vez aquí?
+                </p>
+                <button id="setPasswordBtn" class="btn btn-secondary">Establecer Contraseña</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📚 Gestión Pedagógica</h1>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="themeToggle">🌙</button>
+                    <button class="btn btn-small btn-secondary" id="exportDataBtn">💾 Guardar Archivo</button>
+                    <button class="btn btn-small btn-secondary" id="importDataBtn">📂 Abrir Archivo</button>
+                    <button class="btn btn-small btn-danger" id="logoutBtn">Cerrar Sesión</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- View: Groups List -->
+            <div class="view-groups active" id="viewGroups">
+                <div class="section-header">
+                    <h2>Mis Grupos</h2>
+                    <button class="btn btn-primary" id="addGroupBtn">+ Crear Grupo</button>
+                </div>
+
+                <div id="groupsContainer"></div>
+            </div>
+
+            <!-- View: Group Detail -->
+            <div class="view-group-detail" id="viewGroupDetail">
+                <a href="#" class="back-button" id="backToGroups">← Volver a grupos</a>
+
+                <div class="section-header">
+                    <h2 id="groupDetailTitle"></h2>
+                    <div>
+                        <button class="btn btn-small btn-secondary" id="editGroupBtn">Editar</button>
+                        <button class="btn btn-small btn-danger" id="deleteGroupBtn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="group-info" id="groupInfoContainer"></div>
+
+                <div class="students-section">
+                    <div class="section-header">
+                        <h3>Alumnos del Grupo</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-small btn-secondary" id="toggleFilterBtn" style="display: none;">🌪️
+                                Filtros</button>
+                            <button class="btn btn-primary btn-small" id="addStudentBtn">+ Agregar Alumno</button>
+                        </div>
+                    </div>
+                    <div id="interestFilterContainer" class="notes-section" style="display: none; margin-bottom: 1rem;">
+                    </div>
+                    <div id="studentsTableContainer"></div>
+                </div>
+            </div>
+
+            <!-- View: Student Detail -->
+            <div class="view-student-detail" id="viewStudentDetail">
+                <a href="#" class="back-button" id="backToGroup">← Volver al grupo</a>
+
+                <div class="section-header">
+                    <h2 id="studentDetailTitle"></h2>
+                    <div>
+                        <button class="btn btn-small btn-secondary" id="editStudentBtn">Editar</button>
+                        <button class="btn btn-small btn-danger" id="deleteStudentBtn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="group-info" id="studentInfoContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Group Form -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="groupModalTitle">Crear Grupo</h3>
+            </div>
+            <div class="modal-body">
+                <form id="groupForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre del Grupo *</label>
+                            <input type="text" id="groupName" placeholder="Ej: 1° A, 2° B" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grado *</label>
+                            <select id="groupGrade" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="1">1° (Primero)</option>
+                                <option value="2">2° (Segundo)</option>
+                                <option value="3">3° (Tercero)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color del Grupo</label>
+                        <input type="color" id="groupColor" value="#0c4a6e">
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>PDA Actualmente Trabajado</label>
+                        <input type="text" id="groupPDA" placeholder="Comienza a escribir para buscar..."
+                            autocomplete="off">
+                        <div class="autocomplete-suggestions" id="pdaSuggestions"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenido</label>
+                        <input type="text" id="groupPDAContent" placeholder="Se llenará automáticamente" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Inicio del PDA</label>
+                        <input type="date" id="groupPDADate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Metodología Utilizada</label>
+                        <input type="text" id="groupMethodology" placeholder="Ej: Aprendizaje basado en proyectos">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Horario del Grupo</label>
+                            <textarea id="groupSchedule" placeholder="Escribe cada día en una línea:
+                            Lunes 7:00-7:50
+                            Martes 7:00-7:50
+                            Miércoles 8:00-8:50" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Horas Semanales</label>
+                            <input type="number" id="groupHoursPerWeek" placeholder="5" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas Adicionales</label>
+                        <textarea id="groupNotes" placeholder="Observaciones generales del grupo..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelGroupBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveGroupBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datalists for Autocomplete -->
+    <datalist id="availableInterests"></datalist>
+    <datalist id="availableCareers"></datalist>
+
+    <!-- Modal for Student Form -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">Agregar Alumno</h3>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="studentFullName" placeholder="Ej: Juan Pérez García" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Número de Lista *</label>
+                            <input type="number" id="studentListNumber" placeholder="1" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prefiere que le llamen</label>
+                            <input type="text" id="studentPreferredName" placeholder="Ej: Juanito">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Color del Alumno</label>
+                            <input type="color" id="studentColor" value="#f8fafc">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Género</label>
+                            <select id="studentGender">
+                                <option value="">Seleccionar...</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="No binario">No binario</option>
+                                <option value="Prefiere no decir">Prefiere no decir</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Edad</label>
+                            <input type="number" id="studentAge" placeholder="13" min="10" max="20">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Canal de Aprendizaje</label>
+                        <select id="studentLearningChannel">
+                            <option value="">No especificado...</option>
+                            <option value="Visual">Visual</option>
+                            <option value="Auditivo">Auditivo</option>
+                            <option value="Kinestésico">Kinestésico</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Intereses Particulares</label>
+                        <div class="tag-input-container" id="interestsTagContainer">
+                            <input type="text" id="interestInput" placeholder="Añadir interés y presionar Enter"
+                                list="availableInterests">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Barreras para el Aprendizaje y la Participación (BAP)</label>
+                        <div id="bapCategoriesContainer"
+                            style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
+                        <textarea id="studentBAPDescription"
+                            placeholder="Descripción adicional (opcional)..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>En el futuro quiere ser... (Aspiraciones)</label>
+                        <div class="tag-input-container" id="careersTagContainer">
+                            <input type="text" id="careerInput" placeholder="Añadir profesión y presionar Enter"
+                                list="availableCareers">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas Adicionales</label>
+                        <textarea id="studentNotes" placeholder="Observaciones particulares del alumno..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelStudentBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveStudentBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/groups.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/observations.js"></script>
+    <script src="js/sociogram.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+
+</html>
