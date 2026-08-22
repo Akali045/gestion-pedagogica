@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Pedagógica</title>
+
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#0284c7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gestión Pedagógica">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <link rel="stylesheet" href="css/base.css?v=1.0.2.1">
+    <link rel="stylesheet" href="css/layout.css?v=1.0.2.1">
+    <link rel="stylesheet" href="css/components.css?v=1.0.2.1">
+    <link rel="stylesheet" href="css/modules.css?v=1.0.2.1">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen" style="position: relative;">
+        <button id="loginSettingsBtn" class="btn btn-small btn-secondary"
+            style="position: absolute; top: 1.5rem; right: 1.5rem; width: auto; z-index: 10;"
+            title="Ajustes y Apariencia">⚙️ Ajustes</button>
+        <div class="login-container" style="position: relative;">
+            <div class="drag-overlay" id="dragOverlay">
+                <div class="drag-overlay-icon">📂</div>
+                <p style="font-weight: 600; font-size: 1.1rem; text-align: center; padding: 0 1rem;">¡Suelta tu archivo
+                    JSON aquí!</p>
+            </div>
+            <div class="login-header">
+                <h1>Sistema de Gestión Pedagógica</h1>
+                <p>Administra tus grupos y alumnos de manera eficiente</p>
+            </div>
+
+            <div id="loginError" class="error-message" style="display: none;"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="passwordInput">Contraseña</label>
+                    <input type="password" id="passwordInput" placeholder="Ingresa tu contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Ingresar</button>
+            </form>
+
+            <div style="margin-top: 1rem;">
+                <p style="text-align: center; color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 1rem;">
+                    ¿Primera vez aquí?
+                </p>
+                <button id="setPasswordBtn" class="btn btn-secondary">Establecer Contraseña</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📚 Gestión Pedagógica</h1>
+                <div class="header-actions">
+                    <button class="btn btn-small btn-secondary" id="installAppBtn"
+                        style="display: none; align-items: center; gap: 0.35rem;"
+                        title="Instalar aplicación en tu dispositivo">📲 Instalar App</button>
+                    <button class="btn btn-small btn-secondary" id="settingsBtn">⚙️ Ajustes</button>
+                    <button class="btn btn-small btn-secondary" id="viewTrashBtn">🗑️ Papelera</button>
+                    <button class="btn btn-small btn-secondary" id="exportDataBtn">💾 Guardar</button>
+                    <button class="btn btn-small btn-secondary" id="exportAsDataBtn">💾 Guardar Como...</button>
+                    <button class="btn btn-small btn-secondary" id="importDataBtn">📂 Abrir Archivo</button>
+                    <button class="btn btn-small btn-danger" id="logoutBtn">Cerrar Sesión</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- View: Schools List (Main View) -->
+            <div class="view-schools active" id="viewSchools">
+                <div class="section-header">
+                    <h2>Mis Centros de Trabajo</h2>
+                    <button class="btn btn-primary" id="addSchoolBtn">+ Crear Centro de Trabajo</button>
+                </div>
+
+                <div id="unassignedGroupsContainer" style="display: none;"></div>
+                <div id="schoolsContainer"></div>
+            </div>
+
+            <!-- View: School Detail -->
+            <div class="view-school-detail" id="viewSchoolDetail">
+                <a href="#" class="back-button" id="backToSchools">← Volver a Centros de Trabajo</a>
+
+                <div class="section-header">
+                    <div>
+                        <h2 id="schoolDetailTitle" style="margin-bottom: 0.25rem;"></h2>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="badge badge-secondary" id="schoolDetailCCT" style="font-size: 0.8rem;"></span>
+                            <span class="badge badge-secondary" id="schoolDetailTurn" style="font-size: 0.8rem;"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-small btn-secondary" id="editSchoolBtn">Editar</button>
+                        <button class="btn btn-small btn-danger" id="deleteSchoolBtn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div id="schoolDetailSectionsContainer"></div>
+            </div>
+
+            <!-- View: Group Detail -->
+            <div class="view-group-detail" id="viewGroupDetail">
+                <a href="#" class="back-button" id="backToSchool">← Volver al Centro de Trabajo</a>
+
+                <div class="section-header">
+                    <h2 id="groupDetailTitle"></h2>
+                    <div>
+                        <button class="btn btn-small btn-secondary" id="editGroupBtn">Editar</button>
+                        <button class="btn btn-small btn-danger" id="deleteGroupBtn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="group-info" id="groupInfoContainer"></div>
+                <div id="pdaHistoryContainer"></div>
+
+                <div class="students-section group-info" id="studentsSectionContainer" style="margin-top: 2rem;">
+                    <div id="studentsSectionHeader"
+                        style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                        <h3 style="margin: 0;">👥 Alumnos del Grupo</h3>
+                        <span id="studentsSectionToggleIcon">▼</span>
+                    </div>
+                    <div id="studentsSectionContent" style="display: none; margin-top: 1.5rem;">
+                        <div class="students-toolbar">
+                            <div class="student-search-wrapper">
+                                <span class="student-search-icon">🔍</span>
+                                <input type="text" id="searchStudentInput" class="student-search-input"
+                                    placeholder="Buscar alumno por nombre o N°...">
+                            </div>
+                            <div class="students-actions-group">
+                                <button class="btn btn-small btn-secondary" id="toggleFilterBtn"
+                                    style="display: none;">🌪️ Filtros</button>
+                                <button class="btn btn-small btn-secondary" id="importStudentsBtn"
+                                    title="Importar alumnos desde Excel o CSV">📥 Importar</button>
+                                <button class="btn btn-small btn-secondary" id="exportStudentsBtn"
+                                    title="Exportar lista de alumnos a CSV">📤 Exportar</button>
+                                <button class="btn btn-primary btn-small" id="addStudentBtn">+ Agregar Alumno</button>
+                            </div>
+                        </div>
+                        <div id="interestFilterContainer" class="notes-section"
+                            style="display: none; margin-bottom: 1rem;"></div>
+                        <div id="studentsTableContainer"></div>
+                    </div>
+                </div>
+
+                <div id="teamsSectionContainer"></div>
+                <div id="sociogramGroupSectionContainer"></div>
+                <div id="groupObservationsContainer"></div>
+            </div>
+
+            <!-- View: Student Detail -->
+            <div class="view-student-detail" id="viewStudentDetail">
+                <a href="#" class="back-button" id="backToGroup">← Volver al grupo</a>
+
+                <div class="section-header">
+                    <h2 id="studentDetailTitle"></h2>
+                    <div>
+                        <button class="btn btn-small btn-primary" id="exportStudentPdfBtn">📄 Exportar PDF</button>
+                        <button class="btn btn-small btn-secondary" id="editStudentBtn">Editar</button>
+                        <button class="btn btn-small btn-danger" id="deleteStudentBtn">Eliminar</button>
+                    </div>
+                </div>
+
+                <div class="group-info" id="studentInfoContainer"></div>
+                <div id="studentObservationsContainer"></div>
+                <div id="studentSociogramContainer"></div>
+            </div>
+
+            <!-- View: Trash -->
+            <div class="view-trash" id="viewTrash">
+                <div class="section-header">
+                    <h2>Papelera de Reciclaje</h2>
+                    <div>
+                        <button class="btn btn-small btn-secondary" id="backToGroupsFromTrash">← Volver al Inicio</button>
+                        <button class="btn btn-small btn-danger" id="emptyTrashBtn">Vaciar Papelera</button>
+                    </div>
+                </div>
+                <div id="trashContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for School Form -->
+    <div class="modal" id="schoolModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="schoolModalTitle">Crear Centro de Trabajo</h3>
+            </div>
+            <div class="modal-body">
+                <form id="schoolForm">
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Nombre de la Escuela / Centro de Trabajo *</label>
+                            <input type="text" id="schoolName" placeholder="Ej: Escuela Secundaria Técnica N° 12" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>C.C.T. (Clave)</label>
+                            <input type="text" id="schoolCCT" placeholder="Ej: 15DST0012A">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Turno</label>
+                            <select id="schoolTurn">
+                                <option value="">Seleccionar...</option>
+                                <option value="Matutino">Matutino</option>
+                                <option value="Vespertino">Vespertino</option>
+                                <option value="Nocturno">Nocturno</option>
+                                <option value="Jornada Ampliada">Jornada Ampliada</option>
+                                <option value="Tiempo Completo">Tiempo Completo</option>
+                                <option value="Mixto">Mixto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Color Distintivo</label>
+                            <input type="color" id="schoolColor" value="#0c4a6e">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>📁 Contexto Interno</label>
+                        <textarea id="schoolInternalContext" placeholder="Infraestructura, aulas, recursos tecnológicos, plantilla docente, ambiente escolar..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>🌍 Contexto Externo</label>
+                        <textarea id="schoolExternalContext" placeholder="Comunidad circundante, entorno socioeconómico, dinámicas familiares, factores culturales..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>⚠️ Problemáticas de la Escuela</label>
+                        <textarea id="schoolProblems" placeholder="Diagnóstico de necesidades prioritarias, rezago escolar, retos de convivencia..." rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSchoolBtn" type="button">Cancelar</button>
+                <button class="btn btn-primary" id="saveSchoolBtn" type="button">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Group Form -->
+    <div class="modal" id="groupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="groupModalTitle">Crear Grupo</h3>
+            </div>
+            <div class="modal-body">
+                <form id="groupForm">
+                    <div class="form-group">
+                        <label>Centro de Trabajo (Escuela)</label>
+                        <select id="groupSchoolSelect">
+                            <option value="">-- Sin Centro de Trabajo (Grupo sin asignar) --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre del Grupo *</label>
+                            <input type="text" id="groupName" placeholder="Ej: 1° A, 2° B" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grado *</label>
+                            <select id="groupGrade" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="1">1° (Primero)</option>
+                                <option value="2">2° (Segundo)</option>
+                                <option value="3">3° (Tercero)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color del Grupo</label>
+                        <input type="color" id="groupColor" value="#0c4a6e">
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>PDA Actualmente Trabajado</label>
+                        <input type="text" id="groupPDA" placeholder="Escribe tu PDA o busca sugerencias..."
+                            autocomplete="off">
+                        <div class="autocomplete-suggestions" id="pdaSuggestions"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenido</label>
+                        <input type="text" id="groupPDAContent" placeholder="Escribe el contenido o tema del PDA...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Inicio del PDA</label>
+                        <input type="date" id="groupPDADate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Metodología Utilizada</label>
+                        <input type="text" id="groupMethodology" placeholder="Ej: Aprendizaje basado en proyectos">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Horario del Grupo</label>
+                            <textarea id="groupSchedule" placeholder="Escribe cada día en una línea:
+                            Lunes 7:00-7:50
+                            Martes 7:00-7:50
+                            Miércoles 8:00-8:50" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Horas Semanales</label>
+                            <input type="number" id="groupHoursPerWeek" placeholder="5" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas Adicionales</label>
+                        <textarea id="groupNotes" placeholder="Observaciones generales del grupo..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelGroupBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveGroupBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datalists for Autocomplete -->
+    <datalist id="availableInterests"></datalist>
+    <datalist id="availableCareers"></datalist>
+
+    <!-- Modal for Student Form -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="studentModalTitle">Agregar Alumno</h3>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm">
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" id="studentFullName" placeholder="Ej: Juan Pérez García" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Número de Lista *</label>
+                            <input type="number" id="studentListNumber" placeholder="1" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prefiere que le llamen</label>
+                            <input type="text" id="studentPreferredName" placeholder="Ej: Juanito">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Color para el Alumno</label>
+                            <input type="color" id="studentColor" value="#64748b">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Género</label>
+                            <select id="studentGender">
+                                <option value="">Seleccionar...</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="No binario">No binario</option>
+                                <option value="Prefiere no decir">Prefiere no decir</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Edad</label>
+                            <input type="number" id="studentAge" placeholder="13" min="10" max="20">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Canal de Aprendizaje</label>
+                        <select id="studentLearningChannel">
+                            <option value="">No especificado...</option>
+                            <option value="Visual">Visual</option>
+                            <option value="Auditivo">Auditivo</option>
+                            <option value="Kinestésico">Kinestésico</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Intereses Particulares</label>
+                        <div class="tag-input-container" id="interestsTagContainer">
+                            <input type="text" id="interestInput" placeholder="Añadir interés y presionar Enter"
+                                list="availableInterests">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Barreras para el Aprendizaje y la Participación (BAP)</label>
+                        <div id="bapCategoriesContainer"
+                            style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
+                        <textarea id="studentBAPDescription"
+                            placeholder="Descripción adicional (opcional)..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>En el futuro quiere ser... (Aspiraciones)</label>
+                        <div class="tag-input-container" id="careersTagContainer">
+                            <input type="text" id="careerInput" placeholder="Añadir profesión y presionar Enter"
+                                list="availableCareers">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas Adicionales</label>
+                        <textarea id="studentNotes" placeholder="Observaciones particulares del alumno..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelStudentBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveStudentBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Completed PDA -->
+    <div class="modal" id="pdaHistoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar PDA del Historial</h3>
+            </div>
+            <div class="modal-body">
+                <form id="pdaHistoryForm">
+                    <div class="form-group">
+                        <label>Contenido *</label>
+                        <input type="text" id="pdaHistoryContentInput" placeholder="Ej: Introducción al álgebra"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>PDA *</label>
+                        <textarea id="pdaHistoryPdaInput"
+                            placeholder="Ej: Representa algebraicamente áreas y volúmenes..." rows="3"
+                            required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha de Inicio</label>
+                            <input type="date" id="pdaHistoryStartDateInput">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Fin</label>
+                            <input type="date" id="pdaHistoryEndDateInput">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelPdaHistoryBtn">Cancelar</button>
+                <button class="btn btn-primary" id="savePdaHistoryBtn">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Activity Form -->
+    <div class="modal" id="activityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="activityModalTitle">Agregar Actividad</h3>
+            </div>
+            <div class="modal-body">
+                <form id="activityForm">
+                    <div class="form-group">
+                        <label>Nombre de la Actividad *</label>
+                        <input type="text" id="activityName" placeholder="Ej: Ejercicios de ecuaciones de primer grado"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label>Breve Descripción</label>
+                        <textarea id="activityDescription"
+                            placeholder="Detalles de lo que se realizó o por qué no se pudo hacer..."
+                            rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado de la Actividad *</label>
+                        <select id="activityStatus" required>
+                            <option value="1">Estaba en la planeación y se pudo llevar a cabo</option>
+                            <option value="2">Estaba en la planeación pero no se pudo llevar a cabo</option>
+                            <option value="3">Estaba en la planeación pero se modificaron aspectos al momento de
+                                implementarla</option>
+                            <option value="4">No estaba en la planeación y aun así se implementó</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelActivityBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveActivityBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for App Settings & Appearance -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content" style="max-width: 620px;">
+            <div class="modal-header">
+                <h3>⚙️ Ajustes y Apariencia</h3>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section-title">✨ Estilo de Interfaz</div>
+                <div class="theme-mode-selector">
+                    <button class="theme-mode-btn" id="uiStyleClassic" data-style="classic">
+                        <span>🏛️</span> Clásico
+                    </button>
+                    <button class="theme-mode-btn" id="uiStyleModern" data-style="modern">
+                        <span>✨</span> Moderno
+                    </button>
+                </div>
+
+                <div class="settings-section-title">🌓 Modo de Iluminación</div>
+                <div class="theme-mode-selector">
+                    <button class="theme-mode-btn" id="themeModeLight" data-mode="light">
+                        <span>☀️</span> Modo Claro
+                    </button>
+                    <button class="theme-mode-btn" id="themeModeDark" data-mode="dark">
+                        <span>🌙</span> Modo Oscuro
+                    </button>
+                </div>
+
+                <div class="settings-section-title">🎨 Paleta de Color</div>
+                <div class="theme-palettes-grid" id="themePalettesGrid">
+                    <div class="palette-card" data-palette="classic">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #0c4a6e;"></span>
+                                <span class="palette-dot" style="background: #38bdf8;"></span>
+                            </div>
+                            <span class="palette-name">Clásico</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="ocean">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #0284c7;"></span>
+                                <span class="palette-dot" style="background: #38bdf8;"></span>
+                            </div>
+                            <span class="palette-name">Océano</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="forest">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #15803d;"></span>
+                                <span class="palette-dot" style="background: #4ade80;"></span>
+                            </div>
+                            <span class="palette-name">Bosque</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="indigo">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #4f46e5;"></span>
+                                <span class="palette-dot" style="background: #818cf8;"></span>
+                            </div>
+                            <span class="palette-name">Índigo</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="terracotta">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #b45309;"></span>
+                                <span class="palette-dot" style="background: #f59e0b;"></span>
+                            </div>
+                            <span class="palette-name">Ámbar</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="graphite">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #18181b;"></span>
+                                <span class="palette-dot" style="background: #a1a1aa;"></span>
+                            </div>
+                            <span class="palette-name">Grafito</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="palette-card" data-palette="rose">
+                        <div class="palette-info">
+                            <div class="palette-preview-dots">
+                                <span class="palette-dot" style="background: #e11d48;"></span>
+                                <span class="palette-dot" style="background: #fb7185;"></span>
+                            </div>
+                            <span class="palette-name">Rosa Suave</span>
+                        </div>
+                        <span class="palette-check">✓</span>
+                    </div>
+                    <div class="setting-section"
+                        style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--text-primary); font-size: 1.05rem;">🔐 Seguridad
+                            y Privacidad</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: 1rem;">
+                            Tus datos escolares se almacenan cifrados con <strong>AES-GCM de 256 bits</strong> en este
+                            equipo.
+                        </p>
+                        <button class="btn btn-secondary" id="changePasswordBtn" type="button"
+                            style="width: auto; font-size: 0.88rem;">Cambiar Contraseña Maestra</button>
+                    </div>
+                    <div class="setting-section"
+                        style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--text-primary); font-size: 1.05rem;">📲 Aplicación
+                            Offline (PWA)</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: 1rem;">
+                            Instala esta aplicación en tu computadora, tablet o celular para usarla a pantalla completa
+                            y <strong>100% sin conexión a internet</strong>.
+                        </p>
+                        <button class="btn btn-secondary" id="settingsInstallAppBtn" type="button"
+                            style="width: auto; font-size: 0.88rem;">📲 Instalar en este dispositivo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="closeSettingsBtn"
+                    style="width: auto; min-width: 120px;">Listo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Setting/Changing Master Password -->
+    <div class="modal" id="setPasswordModal">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 id="setPasswordModalTitle">🔐 Establecer Contraseña Maestra</h3>
+                <button class="modal-close" id="closeSetPasswordModalBtn" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1rem 0;">
+                <p id="setPasswordModalDesc"
+                    style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                    Esta contraseña protegerá y cifrará los datos de tus grupos, sociogramas y bitácoras usando
+                    <strong>AES-GCM 256 bits</strong>.
+                </p>
+                <div id="setPasswordError" class="error-message" style="display: none; margin-bottom: 1rem;"></div>
+                <form id="setPasswordForm">
+                    <div class="form-group" id="currentPasswordGroup" style="display: none;">
+                        <label for="currentPasswordInput">Contraseña actual</label>
+                        <input type="password" id="currentPasswordInput" placeholder="Ingresa tu contraseña actual">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPasswordInput">Nueva contraseña (mínimo 4 caracteres)</label>
+                        <input type="password" id="newPasswordInput" placeholder="Ingresa tu contraseña" required
+                            minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPasswordInput">Confirmar nueva contraseña</label>
+                        <input type="password" id="confirmPasswordInput" placeholder="Repite tu contraseña" required
+                            minlength="4">
+                    </div>
+                    <div class="modal-footer"
+                        style="padding: 1rem 0 0 0; margin-top: 1rem; border-top: 1px solid var(--border);">
+                        <button class="btn btn-secondary" type="button" id="cancelSetPasswordBtn">Cancelar</button>
+                        <button class="btn btn-primary" type="submit" id="savePasswordBtn">Guardar y Proteger</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Mass Import of Students -->
+    <div class="modal" id="importStudentsModal">
+        <div class="modal-content" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3>📥 Importación Masiva de Alumnos</h3>
+                <button class="modal-close" id="closeImportStudentsModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Pega directamente tu lista desde <strong>Excel</strong>, <strong>Word</strong> o un archivo de
+                    texto. El sistema detectará automáticamente el número de lista y nombre.
+                </p>
+
+                <!-- Input mode tabs -->
+                <div class="import-tabs"
+                    style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    <button type="button" class="btn btn-small btn-primary import-tab-btn active" id="importTabPaste">📋
+                        Pegar lista</button>
+                    <button type="button" class="btn btn-small btn-secondary import-tab-btn" id="importTabFile">📁 Subir
+                        archivo CSV/TXT</button>
+                </div>
+
+                <!-- Textarea mode -->
+                <div id="importPasteSection">
+                    <div class="form-group">
+                        <label for="importRawText">Pega aquí tu lista escolar:</label>
+                        <textarea id="importRawText" rows="6"
+                            placeholder="1	García López Juan Carlos&#10;2	Martínez Hernández Ana Sofía&#10;3	Rodríguez Pérez Carlos"
+                            style="font-family: monospace; font-size: 0.88rem; width: 100%;"></textarea>
+                    </div>
+                </div>
+
+                <!-- File drop mode -->
+                <div id="importFileSection" style="display: none;">
+                    <div class="file-drop-zone" id="importDropZone"
+                        style="border: 2px dashed var(--border); border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; background: var(--bg-secondary);">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">📄</span>
+                        <p style="margin: 0; font-weight: 500; color: var(--text-primary);">Haz clic o arrastra un
+                            archivo CSV o TXT aquí</p>
+                        <span style="font-size: 0.8rem; color: var(--text-tertiary);">Formato: UTF-8 delimitado por
+                            comas, punto y coma o tabulaciones</span>
+                        <input type="file" id="importFileInput" accept=".csv,.txt" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Import Mode Option -->
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Modo de inserción:</label>
+                    <div style="display: flex; gap: 1.5rem;">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+                            <input type="radio" name="importMode" value="append" checked>
+                            <span>Agregar a los existentes</span>
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+                            <input type="radio" name="importMode" value="replace">
+                            <span style="color: var(--danger);">Reemplazar lista actual</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Live Preview Table -->
+                <div id="importPreviewContainer" style="display: none; margin-top: 1.25rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label style="font-weight: 600; margin: 0;">Previsualización (<span
+                                id="importParsedCount">0</span> alumnos detectados):</label>
+                        <span style="font-size: 0.8rem; color: var(--text-tertiary);">Puedes editar antes de
+                            guardar</span>
+                    </div>
+                    <div
+                        style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;">
+                        <table class="import-preview-table"
+                            style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                            <thead style="background: var(--bg-tertiary); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 0.5rem; text-align: center; width: 60px;">N°</th>
+                                    <th style="padding: 0.5rem; text-align: left;">Nombre completo</th>
+                                    <th style="padding: 0.5rem; text-align: left; width: 130px;">Nombre corto</th>
+                                    <th style="padding: 0.5rem; text-align: center; width: 50px;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importPreviewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelImportStudentsBtn" type="button">Cancelar</button>
+                <button class="btn btn-primary" id="confirmImportStudentsBtn" type="button" disabled>Guardar
+                    alumnos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for CSV Export Options -->
+    <div class="modal" id="exportStudentsModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3>📤 Exportar Lista de Alumnos (CSV)</h3>
+                <button class="modal-close" id="closeExportStudentsModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                    Selecciona el formato de exportación compatible con <strong>Microsoft Excel</strong> y hojas de
+                    cálculo:
+                </p>
+
+                <div class="export-options-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <label class="export-option-card"
+                        style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.85rem; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--bg-secondary);">
+                        <input type="radio" name="exportModeOption" value="basic" checked style="margin-top: 0.25rem;">
+                        <div>
+                            <strong style="display: block; color: var(--text-primary); font-size: 0.95rem;">Lista
+                                Oficial Básica (Recomendada)</strong>
+                            <span style="font-size: 0.82rem; color: var(--text-tertiary);">Incluye únicamente
+                                <strong>Número de lista</strong> y <strong>Nombre completo</strong>. Ideal para formatos
+                                escolares y pase de lista.</span>
+                        </div>
+                    </label>
+
+                    <label class="export-option-card"
+                        style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.85rem; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--bg-secondary);">
+                        <input type="radio" name="exportModeOption" value="full" style="margin-top: 0.25rem;">
+                        <div>
+                            <strong style="display: block; color: var(--text-primary); font-size: 0.95rem;">Ficha
+                                Integral de Diagnóstico</strong>
+                            <span style="font-size: 0.82rem; color: var(--text-tertiary);">Incluye N° lista, Nombre,
+                                Género, Edad, Canal VAK, Intereses, BAP y Aspiraciones.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelExportStudentsBtn" type="button">Cancelar</button>
+                <button class="btn btn-primary" id="confirmExportStudentsBtn" type="button">Descargar CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fallbackFileInput" accept=".json" style="display: none;">
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/html2pdf.bundle.min.js"></script>
+    <script src="js/crypto.js?v=1.0.2.3"></script>
+    <script src="js/data.js?v=1.0.2.3"></script>
+    <script src="js/auth.js?v=1.0.2.3"></script>
+    <script src="js/schools.js?v=1.0.2.3"></script>
+    <script src="js/groups.js?v=1.0.2.3"></script>
+    <script src="js/students.js?v=1.0.2.3"></script>
+    <script src="js/observations.js?v=1.0.2.3"></script>
+    <script src="js/sociogram.js?v=1.0.2.3"></script>
+    <script src="js/teams.js?v=1.0.2.3"></script>
+    <script src="js/trash.js?v=1.0.2.3"></script>
+    <script src="js/ui.js?v=1.0.2.3"></script>
+</body>
+
+</html>
