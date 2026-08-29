@@ -1,0 +1,434 @@
+/* Login Screen */
+.login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+}
+
+.login-container {
+    background: var(--bg-secondary);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px var(--shadow);
+    max-width: 420px;
+    width: 100%;
+    animation: fadeInUp 0.5s ease;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.login-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Main App */
+.app-container {
+    display: none;
+}
+
+.app-container.active {
+    display: block;
+}
+
+.header {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.theme-toggle {
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+}
+
+/* Main Content */
+.main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.view-schools,
+.view-school-detail,
+.view-groups,
+.view-group-detail,
+.view-student-detail,
+.view-trash {
+    display: none;
+}
+
+.view-schools.active,
+.view-school-detail.active,
+.view-groups.active,
+.view-group-detail.active,
+.view-student-detail.active,
+.view-trash.active {
+    display: block;
+    animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+}
+
+/* Group Detail */
+.group-info {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.group-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.channels-chart {
+    background: var(--bg-tertiary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+}
+
+.channel-bar {
+    margin-bottom: 1rem;
+}
+
+.channel-bar label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.notes-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+.notes-section h4 {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.notes-section p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.pda-history-section {
+    margin-top: 2rem;
+}
+
+.pda-history-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.pda-history-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.pda-history-card strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.pda-history-card p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.pda-history-card .dates {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+/* Students List */
+.students-section {
+    margin-top: 2rem;
+}
+
+.students-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Improvements */
+@media (max-width: 1024px) {
+    .header-content {
+        padding: 0 1.25rem;
+    }
+    .main-content {
+        padding: 1.5rem 1.25rem;
+    }
+    .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+    }
+
+    .header {
+        padding: 0.75rem 0;
+    }
+
+    .header-content {
+        padding: 0 0.75rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+    }
+
+    .header h1 {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.35rem;
+        width: 100%;
+    }
+
+    .header-actions .btn-small {
+        flex: 1 1 calc(33.333% - 0.35rem);
+        min-width: 85px;
+        padding: 0.45rem 0.5rem;
+        font-size: 0.78rem;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .main-content {
+        padding: 1rem 0.75rem;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .section-header > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        width: 100%;
+    }
+
+    .section-header > div .btn {
+        flex: 1 1 calc(50% - 0.4rem);
+        min-width: 120px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .group-info {
+        padding: 1.25rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .group-info-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .students-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        width: 100%;
+    }
+
+    .student-row {
+        grid-template-columns: 36px 1fr 90px 45px;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .student-color-dot {
+        margin-right: 6px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .login-screen {
+        padding: 1rem;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-container {
+        padding: 1.75rem 1.25rem;
+        max-width: 100%;
+        border-radius: 12px;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+
+    #loginSettingsBtn {
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
+    }
+
+    /* Modal adjustments on mobile */
+    .modal {
+        padding: 0.75rem 0.5rem;
+        align-items: flex-start;
+    }
+
+    .modal-content {
+        margin: 1rem auto;
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100vh - 2rem);
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 1.25rem 1rem 0.75rem 1rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1rem 1.25rem 1rem;
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions .btn-small {
+        flex: 1 1 calc(50% - 0.35rem);
+        font-size: 0.75rem;
+        padding: 0.4rem 0.4rem;
+    }
+
+    .student-row {
+        grid-template-columns: 30px 1fr 80px;
+    }
+    
+    .student-row > div:nth-child(4) {
+        display: none; /* Hide age on very narrow screens */
+    }
+
+    .student-row.header > div:nth-child(4) {
+        display: none;
+    }
+}
